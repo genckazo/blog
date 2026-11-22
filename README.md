@@ -45,11 +45,7 @@ npm run preview    # serve dist/ locally
 ## Look & feel
 
 - **Landing**: oversized serif headline, short lede, pill "Enter the blog"
-  link, three feature cards — and a procedural 3D spinning battle-top
-  (Three.js npm dep, lazy-loaded chunk) beside the headline; click/tap to
-  launch. Palette follows the active theme (ink-on-paper + one amber accent),
-  pauses when hidden/off-screen, respects reduced motion
-  (`src/scripts/top.ts`; screenshots 13–15 in `docs/screenshots/`).
+  link, three feature cards — plain type on paper.
 - **Reading pages**: warm paper background with a subtle grain (inline SVG
   `feTurbulence`), near-black ink, serif body with indented paragraphs at
   1.78 line height, sans-serif UI chrome, hairline dividers, no shadows.

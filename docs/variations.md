@@ -1,23 +1,4 @@
 # Design variations
-## Landing: procedural 3D battle-top
-
-The landing page shows an original, fully procedural Three.js spinning top beside the
-headline (stacked below on phones). Wide attack ring (torus + teeth), ridged energy
-layer (lathe), cone tip — no copied models/logos/assets. Palette is read from the
-page's CSS custom properties, so it follows the active theme: ink-on-paper with one
-muted amber accent. It spins continuously with a slight wobble; click/tap/Enter
-launches it (spin ramps up, wobbles, settles). Three.js is an npm dependency loaded as
-a lazy chunk via dynamic `import()` only when the page is idle; rendering pauses when
-the tab is hidden or the top is off-screen (IntersectionObserver), respects
-`prefers-reduced-motion`, and caps `devicePixelRatio` at 2.
-
-| View | Screenshot |
-|---|---|
-| Landing with top, desktop 1440×900 | ![top desktop](screenshots/13-top-landing-desktop.png) |
-| Mid-launch (clicked) | ![top launched](screenshots/14-top-launched.png) |
-| Landing with top, mobile 390×844 | ![top mobile](screenshots/15-top-landing-mobile.png) |
-
-
 The look is driven entirely by CSS custom properties in `:root`
 (`src/styles/global.css`) and can be tuned live with the **Display** panel
 (floating button, bottom right) on every reading page. Settings persist in

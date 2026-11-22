@@ -1,0 +1,45 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const base = import.meta.env.BASE_URL;
+
+const projects = [
+  {
+    name: 'This blog',
+    meta: 'astro · markdown · github pages',
+    desc: 'The site you are reading. ASCII wardrobe-doors entrance, e-reader reading pages, Markdown posts, free hosting on GitHub Pages.',
+    url: 'https://github.com/genckazo/blog',
+  },
+  {
+    name: 'doorart',
+    meta: 'python · ascii',
+    desc: 'A tiny generator that draws the wardrobe-door ASCII art in three styles (panel, louver, window) and splits it into sliding layers.',
+    url: 'https://github.com/genckazo',
+  },
+  {
+    name: 'reading-list',
+    meta: 'cli · plain text',
+    desc: 'A command-line reading list stored as one Markdown file. No database, no sync, no notifications — just a file that loads instantly.',
+    url: 'https://github.com/genckazo',
+  },
+];
+---
+
+<Layout title="Projects — genckazo" current="projects">
+  <h1 class="page-title">Projects</h1>
+  <p class="lede">A few things I have built and still use. Full list on GitHub.</p>
+
+  <ul class="project-list">
+    {projects.map((p) => (
+      <li>
+        <p class="p-meta">{p.meta}</p>
+        <h2><a href={p.url}>{p.name} &nearr;</a></h2>
+        <p>{p.desc}</p>
+      </li>
+    ))}
+  </ul>
+
+  <p class="lede" style="margin-top:2rem">
+    More at <a href="https://github.com/genckazo" style="color:var(--link)">github.com/genckazo</a>.
+  </p>
+</Layout>

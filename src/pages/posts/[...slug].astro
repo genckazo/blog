@@ -1,0 +1,41 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts
+    .filter((p) => !p.data.draft)
+    .map((p) => ({ params: { slug: p.id } }));
+}
+
+const { slug } = Astro.params;
+const posts = await getCollection('blog');
+const post = posts.find((p) => p.id === slug);
+if (!post) throw new Error(`No post found for slug "${slug}"`);
+const { Content } = await render(post);
+
+const base = import.meta.env.BASE_URL;
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Layout title={`${post.data.title} — genckazo`} description={post.data.excerpt} current="blog">
+  <article>
+    <header class="post-head">
+      <h1>{post.data.title}</h1>
+      <div class="post-meta">
+        <p class="date">{fmt(post.data.date)}</p>
+        {post.data.tags.length > 0 && (
+          <ul class="tags">{post.data.tags.map((t) => <li>{t}</li>)}</ul>
+        )}
+      </div>
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+    <footer class="post-foot">
+      <a href={`${base}posts/`}>&larr; all posts</a>
+    </footer>
+  </article>
+</Layout>

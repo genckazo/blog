@@ -1,0 +1,28 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const base = import.meta.env.BASE_URL;
+const fmt = (d: Date) =>
+  d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Layout title="Blog — genckazo" current="blog">
+  <h1 class="page-title">Writing</h1>
+  <p class="lede">Essays and notes, newest first — set like pages in an e-reader.</p>
+
+  <div class="post-list">
+    {posts.map((post) => (
+      <article>
+        <p class="date">{fmt(post.data.date)}</p>
+        <h2><a href={`${base}posts/${post.id}/`}>{post.data.title}</a></h2>
+        {post.data.excerpt && <p class="excerpt">{post.data.excerpt}</p>}
+        <a class="read-more" href={`${base}posts/${post.id}/`}>read &rarr;</a>
+      </article>
+    ))}
+  </div>
+</Layout>

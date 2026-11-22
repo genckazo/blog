@@ -1,0 +1,53 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  current?: 'blog' | 'projects' | 'about';
+}
+
+const { title, description = "genckazo's personal blog — essays and notes, set like an e-reader.", current } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <script is:inline>
+      // texture intensity override: ?texture=subtle|standard|strong
+      (function () {
+        var m = /[?&]texture=(subtle|standard|strong)/.exec(location.search);
+        if (m) {
+          var v = { subtle: '0.16', standard: '0.38', strong: '0.62' }[m[1]];
+          document.documentElement.style.setProperty('--noise', v);
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div class="page">
+      <header class="site-head">
+        <a class="wordmark" href={`${base}posts/`}>genckazo<span class="wm-sub"> · reading room</span></a>
+        <nav class="site-nav" aria-label="Main">
+          <a href={`${base}posts/`} aria-current={current === 'blog' ? 'page' : undefined}>Blog</a>
+          <a href={`${base}projects/`} aria-current={current === 'projects' ? 'page' : undefined}>Projects</a>
+          <a href={`${base}about/`} aria-current={current === 'about' ? 'page' : undefined}>About</a>
+          <a class="back" href={`${base}`} title="Back to the wardrobe doors">&#8592; wardrobe</a>
+        </nav>
+      </header>
+      <main>
+        <slot />
+      </main>
+      <footer class="site-foot">
+        <span>&copy; 2026 genckazo · set in serif on e-ink paper</span>
+        <a href={`${base}`}>&#8592; back through the wardrobe</a>
+      </footer>
+    </div>
+  </body>
+</html>

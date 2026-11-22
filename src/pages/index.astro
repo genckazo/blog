@@ -10,7 +10,7 @@ const base = import.meta.env.BASE_URL;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>genckazo — blog</title>
-    <meta name="description" content="genckazo's personal blog. Essays and notes, set like a book page." />
+    <meta name="description" content="genckazo's personal blog." />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <script is:inline>
       // apply saved display theme before first paint (same engine as inner pages)
@@ -46,97 +46,26 @@ const base = import.meta.env.BASE_URL;
     </script>
     <style>
       .landing {
-        max-width: 46rem;
-        margin: 0 auto;
         min-height: 100svh;
         display: flex;
-        flex-direction: column;
+        align-items: center;
         justify-content: center;
-        padding: 3rem 1.4rem;
-      }
-      .overline {
-        font-family: var(--sans);
-        font-size: 0.72rem;
-        letter-spacing: 0.35em;
-        text-transform: uppercase;
-        color: var(--faint);
-        margin: 0 0 1.4rem;
-      }
-      h1.display {
-        font-size: clamp(2.6rem, 7.5vw, 4.4rem);
-        line-height: 1.04;
-        letter-spacing: -0.028em;
-        font-weight: 650;
-        margin: 0 0 1.2rem;
-      }
-      .landing .lede {
-        font-family: var(--sans);
-        font-size: 1.02rem;
-        color: var(--soft);
-        line-height: 1.6;
-        max-width: 34rem;
-        margin: 0 0 1.8rem;
+        padding: 2rem 1.4rem;
       }
       .enter a {
-        display: inline-block;
-        font-family: var(--sans);
-        font-size: 0.95rem;
+        font-family: var(--serif);
+        font-size: 1.05rem;
         color: var(--ink);
-        text-decoration: none;
-        border: 1px solid var(--ink);
-        border-radius: 999px;
-        padding: 0.6rem 1.35rem;
-        transition: background-color 0.15s ease, color 0.15s ease;
+        text-decoration: underline;
+        text-decoration-color: var(--hairline);
+        text-underline-offset: 4px;
       }
-      .enter a:hover { background: var(--ink); color: var(--paper); }
-      .cards {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 1rem;
-        margin-top: 3.4rem;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--hairline);
-        border-radius: 14px;
-        padding: 1.05rem 1.15rem;
-        text-align: left;
-      }
-      .card svg { color: var(--ink); display: block; }
-      .card h3 { font-family: var(--sans); font-size: 0.9rem; font-weight: 650; margin: 0.6rem 0 0.25rem; }
-      .card p { font-family: var(--sans); font-size: 0.84rem; color: var(--soft); line-height: 1.5; margin: 0; }
-      @media (max-width: 700px) {
-        .cards { grid-template-columns: 1fr; margin-top: 2.6rem; }
-      }
+      .enter a:hover { text-decoration-color: var(--ink); }
     </style>
   </head>
   <body>
     <main class="landing">
-      <p class="overline">genckazo &middot; blog</p>
-      <h1 class="display">Everything you read is here.</h1>
-      <p class="lede">
-        Essays and notes, saved as plain Markdown in a public repo and set like a
-        book page — not a feed. Free forever on GitHub Pages.
-      </p>
-      <p class="enter"><a href={`${base}posts/`}>Enter the blog &rarr;</a></p>
-
-      <div class="cards">
-        <div class="card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
-          <h3>Add anything</h3>
-          <p>Posts are Markdown files in the GitHub repo. Write one, commit, published.</p>
-        </div>
-        <div class="card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
-          <h3>Find it fast</h3>
-          <p>A short reading list, newest first. No algorithm, no infinite scroll.</p>
-        </div>
-        <div class="card">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-          <h3>Keep track</h3>
-          <p>Each post is a row: title, one-line note, date. Like a bookshelf, minus the dust.</p>
-        </div>
-      </div>
+      <p class="enter" style="margin:0"><a href={`${base}posts/`}>Enter the blog</a></p>
     </main>
   </body>
 </html>

@@ -44,8 +44,7 @@ npm run preview    # serve dist/ locally
 
 ## Look & feel
 
-- **Landing**: oversized serif headline, short lede, pill "Enter the blog"
-  link, three feature cards — plain type on paper.
+- **Landing**: an empty page with a single "Enter the blog" link — nothing else.
 - **Reading pages**: warm paper background with a subtle grain (inline SVG
   `feTurbulence`), near-black ink, serif body with indented paragraphs at
   1.78 line height, sans-serif UI chrome, hairline dividers, no shadows.

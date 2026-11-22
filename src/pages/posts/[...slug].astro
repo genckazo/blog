@@ -24,12 +24,12 @@ const fmt = (d: Date) =>
   <article>
     <header class="post-head">
       <h1>{post.data.title}</h1>
-      <div class="post-meta">
-        <p class="date">{fmt(post.data.date)}</p>
+      <p class="byline">
+        genckazo &middot; {fmt(post.data.date)}
         {post.data.tags.length > 0 && (
           <ul class="tags">{post.data.tags.map((t) => <li>{t}</li>)}</ul>
         )}
-      </div>
+      </p>
     </header>
     <div class="prose">
       <Content />

@@ -1,9 +1,9 @@
 # blog
 
-Personal blog of **genckazo**. Landing page is a large monochrome ASCII-art
-wardrobe (Narnia-style); click the doors and they slide open into the blog,
-which is styled like an e-reader: paperish textured background, serif reading
-column, low-glare palette, responsive on mobile.
+Personal blog of **genckazo**, styled like a reading app: warm paper, serif
+book pages, a reading-list index, and a Display panel (Paper / Dusk / Ink
+themes + Light, Contrast, Warmth, Grain sliders). Posts are plain Markdown
+files — no database, no CMS.
 
 - **Free hosting:** GitHub Pages — <https://genckazo.github.io/blog/> (no paid
   services anywhere)
@@ -11,7 +11,7 @@ column, low-glare palette, responsive on mobile.
   `https://genckazo.github.io/blog/`. To get the root address
   `https://genckazo.github.io/` instead, rename the repo to
   `genckazo.github.io` and set `base: '/'` in `astro.config.mjs`.
-- **Content:** plain Markdown files in `src/content/blog/` — no database, no CMS.
+- **Content:** plain Markdown files in `src/content/blog/`.
 
 ## Stack
 
@@ -33,13 +33,30 @@ npm run preview    # serve dist/ locally
 
 | Page | Route (on the deployed site) |
 |---|---|
-| Entrance (ASCII wardrobe doors) | `https://genckazo.github.io/blog/` |
-| Blog — post list | `https://genckazo.github.io/blog/posts/` |
-| Individual post | `https://genckazo.github.io/blog/posts/<slug>/` |
+| Landing (minimal typographic page) | `https://genckazo.github.io/blog/` |
+| Blog — reading list | `https://genckazo.github.io/blog/posts/` |
+| Individual post (book style) | `https://genckazo.github.io/blog/posts/<slug>/` |
 | Projects | `https://genckazo.github.io/blog/projects/` |
 | About | `https://genckazo.github.io/blog/about/` |
 
 (The `/blog/` prefix comes from the repo name; see above for the root-URL option.)
+
+## Look & feel
+
+- **Landing**: oversized serif headline, short lede, pill "Enter the blog"
+  link, three feature cards — plain type on paper.
+- **Reading pages**: warm paper background with a subtle grain (inline SVG
+  `feTurbulence`), near-black ink, serif body with indented paragraphs at
+  1.78 line height, sans-serif UI chrome, hairline dividers, no shadows.
+- **Display panel** (floating "Display" button, bottom right): Paper / Dusk /
+  Ink theme chips + Light / Contrast / Warmth / Grain sliders. Settings persist
+  in `localStorage`. `?texture=subtle|standard|strong` on any URL overrides
+  the grain level once.
+- All colors/texture live in CSS custom properties in `:root` in
+  `src/styles/global.css` — tweak the vibe in a single file.
+- Brief paper-colored flash on page load, like an e-ink screen refresh
+  (disabled under `prefers-reduced-motion`).
+- Responsive: single column under 560px, texture stays subtle on phones.
 
 ## Write a post
 
@@ -49,7 +66,7 @@ Add `src/content/blog/my-post.md`:
 ---
 title: "My post"
 date: 2026-11-22
-excerpt: "One-line summary shown in the list."
+excerpt: "One-line summary shown in the reading list."
 tags: [notes]
 ---
 
@@ -65,7 +82,7 @@ automatically. Set `draft: true` to hide a post.
    `main` and deploys `dist/` with the official `actions/deploy-pages` action.
 2. Enable Pages once: repo **Settings → Pages → Build and deployment →
    Source → "GitHub Actions"** (equivalently:
-   `gh api -X PUT repos/genckazo/blog/pages -f build_type=workflow`).
+   `gh api -X POST repos/genckazo/blog/pages -f build_type=workflow`).
 3. Merge to `main` → the workflow runs → the site is live at
    **<https://genckazo.github.io/blog/>**.
 
@@ -74,22 +91,18 @@ request so PRs are checked before merge.
 
 ## Design variations
 
-The first working version ships with switchable variants so the look can be
-iterated: open the entrance with `?door=panel` (default), `?door=louver`, or
-`?door=window`, and any reading page with `?texture=subtle|standard|strong`
-(default `standard`). See [docs/variations.md](docs/variations.md) with
-screenshots in [docs/screenshots/](docs/screenshots/).
+See [docs/variations.md](docs/variations.md) — theme variants (Paper / Dusk /
+Ink) and grain levels, with screenshots in [docs/screenshots/](docs/screenshots/).
 
 ## Repo layout
 
 ```
-src/pages/index.astro          entrance: ASCII wardrobe doors, click to enter
-src/data/doors.ts              generated door art (3 variants, 3 layers each)
-src/pages/posts/               blog list + [...slug] post pages
-src/pages/projects.astro       projects
+src/pages/index.astro          minimal typographic landing page
+src/pages/posts/               reading-list index + [...slug] book-style posts
+src/pages/projects.astro       projects (cards)
 src/pages/about.astro          about
-src/layouts/Layout.astro       e-reader page shell (header/nav/footer)
-src/styles/global.css          e-ink paper theme (palette, grain, type)
+src/layouts/Layout.astro       page shell + Display settings panel (theme engine)
+src/styles/global.css          paper/ink theme, all colors in :root custom properties
 src/content/blog/*.md          posts (Markdown)
 .github/workflows/             CI (PR) + Pages deploy (main)
 docs/screenshots/              screenshots used in the PR

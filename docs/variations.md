@@ -1,53 +1,44 @@
-# Design variations (first working version)
+# Design variations
 
-The aesthetic is meant to be iterated with the owner. Everything below is
-already built in and switchable via URL query params, so each option can be
-previewed live on the deployed site — no rebuild needed.
+The look is driven entirely by CSS custom properties in `:root`
+(`src/styles/global.css`) and can be tuned live with the **Display** panel
+(floating button, bottom right) on every reading page. Settings persist in
+`localStorage`; `?texture=subtle|standard|strong` overrides the grain once.
 
-## Entrance: 3 ASCII door renderings
+## Display themes (chips in the Display panel)
 
-Preview: `https://genckazo.github.io/blog/?door=panel` (default) ·
-`?door=louver` · `?door=window`
-
-| Variant | Screenshot | Notes |
+| Theme | Screenshot | Notes |
 |---|---|---|
-| **panel** (default) | ![panel](screenshots/01-entrance-desktop.png) | Classic raised-panel double doors with knobs + keyholes |
-| **louver** | ![louver](screenshots/02-entrance-louver.png) | Slatted/louvered doors — busier texture |
-| **window** | ![window](screenshots/03-entrance-window.png) | Raised panels with a small round porthole window |
+| **Paper** (default) | ![paper post](screenshots/04-post-paper-desktop.png) | warm off-white `#f4f1ea`, near-black ink |
+| **Dusk** | ![dusk post](screenshots/05-post-dusk-desktop.png) | muted warm gray, dark ink — evening reading |
+| **Ink** | ![ink post](screenshots/06-post-ink-desktop.png) | near-black paper, off-white ink — e-ink night mode |
 
-All variants are pure-ASCII, monochrome (warm charcoal background, paper-ink
-art), 80×32 characters, and scale with viewport width (`ch`-based sizing).
-Clicking the doors slides them open to reveal the reading room, then enters
-the blog (see `screenshots/04-doors-opening.png` mid-animation).
+The Display panel itself, exactly as shipped (chips + Light 62% / Contrast 0% /
+Warmth 38% / Grain 25% sliders):
 
-To change the default door: reorder `DOOR_ORDER` in `src/data/doors.ts`
-(the first entry is the default; `?door=` overrides it).
+![display panel](screenshots/10-display-panel-open.png)
 
-## Reading pages: 3 paper-grain intensities
+## Grain intensity (`?texture=` on any page)
 
-Preview: any post with `?texture=subtle` · `?texture=standard` (default) ·
-`?texture=strong`
-
-| Intensity | Screenshot | Notes |
+| Level | Screenshot | `--noise` |
 |---|---|---|
-| subtle | ![subtle](screenshots/07-post-texture-subtle.png) | `--noise: 0.16`, almost flat paper |
-| standard (default) | ![standard](screenshots/06-post-desktop.png) | `--noise: 0.38`, faint e-ink grain |
-| strong | ![strong](screenshots/08-post-texture-strong.png) | `--noise: 0.62`, clearly textured |
+| subtle | — | 16% slider |
+| standard (default) | ![standard](screenshots/04-post-paper-desktop.png) | 38% slider |
+| strong | ![strong](screenshots/09-post-grain-strong.png) | 62% slider |
 
-The grain is an inline SVG `feTurbulence` overlay (`mix-blend-mode: multiply`)
-over a warm paper gradient — no image assets. To change the default, edit
-`--noise` in `src/styles/global.css`.
+## Pages
 
-## Other shipped views
-
-- Blog list (desktop): `screenshots/05-blog-list.png` · mobile: `screenshots/13-list-mobile.png`
-- Post page (desktop): `screenshots/06-post-desktop.png` · mobile: `screenshots/10-post-mobile.png`
-- Entrance mobile: `screenshots/09-entrance-mobile.png`
+- Landing (desktop): `screenshots/01-landing-desktop.png` · mobile: `screenshots/02-landing-mobile.png`
+- Reading list (desktop): `screenshots/03-list-desktop.png` · mobile: `screenshots/08-list-mobile.png`
+- Post page (desktop): `screenshots/04-post-paper-desktop.png` · mobile: `screenshots/07-post-mobile.png`
 - Projects / About: `screenshots/11-projects-desktop.png`, `screenshots/12-about-desktop.png`
 
-## Ideas to try next (not built)
+## Tweak points for the owner
 
-- A fourth door variant: arched top, or a wreath/carving on the upper panel.
-- Entrance on paper background instead of charcoal (invert the palette).
-- Slight sepia ink (`#3a3226`) instead of near-black for softer contrast.
-- A "lamp glow" radial highlight behind the doors when they open.
+- All colors: `:root` in `src/styles/global.css` (also settable live via the
+  Display panel, which writes the same custom properties).
+- Themes: the `THEMES` map in the inline script in `src/layouts/Layout.astro`
+  (and the copy in `src/pages/index.astro`).
+- Grain: `body::after` overlay in `global.css`; `--noise` custom property.
+- Typography scale: `.prose`, `.page-title`, `h1.display` in `global.css` /
+  `index.astro`.

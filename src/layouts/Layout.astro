@@ -7,7 +7,7 @@ interface Props {
   current?: 'blog' | 'projects' | 'about';
 }
 
-const { title, description = "genckazo's personal blog — essays and notes, set like an e-reader.", current } = Astro.props;
+const { title, description = "genckazo's personal blog — essays and notes, set like a book page.", current } = Astro.props;
 const base = import.meta.env.BASE_URL;
 ---
 
@@ -20,34 +20,148 @@ const base = import.meta.env.BASE_URL;
     <meta name="description" content={description} />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
     <script is:inline>
-      // texture intensity override: ?texture=subtle|standard|strong
+      // Display settings: apply saved theme (or ?texture=) before first paint.
       (function () {
+        var THEMES = {
+          paper: { paper: '#f4f1ea', card: '#fbfaf6', ink: '#211e1a', soft: '#6e6a5f', faint: '#9b968a' },
+          dusk:  { paper: '#aeaa9f', card: '#bab6ab', ink: '#1e1c18', soft: '#4c4941', faint: '#6f6b60' },
+          ink:   { paper: '#161411', card: '#201d19', ink: '#e7e2d3', soft: '#a39d8e', faint: '#7d786c' }
+        };
+        var DEF = { theme: 'paper', light: 62, contrast: 0, warmth: 38, grain: 25 };
+        var s = DEF;
+        try {
+          var saved = JSON.parse(localStorage.getItem('display') || 'null');
+          if (saved) s = Object.assign({}, DEF, saved);
+        } catch (e) {}
         var m = /[?&]texture=(subtle|standard|strong)/.exec(location.search);
-        if (m) {
-          var v = { subtle: '0.16', standard: '0.38', strong: '0.62' }[m[1]];
-          document.documentElement.style.setProperty('--noise', v);
-        }
+        if (m) s.grain = { subtle: 16, standard: 38, strong: 62 }[m[1]];
+        function mix(a, b, p) { return 'color-mix(in srgb, ' + a + ' ' + p + '%, ' + b + ')'; }
+        window.__applyDisplay = function (st) {
+          var t = THEMES[st.theme] || THEMES.paper;
+          var paper = mix(t.paper, '#f0dfba', st.warmth);
+          var lt = (st.light - 50) * 0.6;
+          paper = lt >= 0 ? mix(paper, st.theme === 'ink' ? '#3a352c' : '#ffffff', lt) : mix(paper, '#000000', -lt);
+          var card = mix(paper, st.theme === 'ink' ? '#000000' : '#ffffff', 4);
+          var ink = st.contrast > 0 ? mix(t.ink, st.theme === 'ink' ? '#ffffff' : '#000000', st.contrast * 0.85) : t.ink;
+          var root = document.documentElement.style;
+          root.setProperty('--paper', paper);
+          root.setProperty('--card', card);
+          root.setProperty('--ink', ink);
+          root.setProperty('--soft', t.soft);
+          root.setProperty('--faint', t.faint);
+          root.setProperty('--hairline', mix(ink, paper, 88));
+          root.setProperty('--noise', (st.grain / 100 * 0.55).toFixed(3));
+          document.documentElement.dataset.theme = st.theme;
+        };
+        window.__display = s;
+        window.__applyDisplay(s);
       })();
     </script>
   </head>
   <body>
+    <div class="eink-flash" aria-hidden="true"></div>
     <div class="page">
       <header class="site-head">
-        <a class="wordmark" href={`${base}posts/`}>genckazo<span class="wm-sub"> · reading room</span></a>
+        <a class="wordmark" href={`${base}`}>genckazo<span class="wm-sub"> · blog</span></a>
         <nav class="site-nav" aria-label="Main">
           <a href={`${base}posts/`} aria-current={current === 'blog' ? 'page' : undefined}>Blog</a>
           <a href={`${base}projects/`} aria-current={current === 'projects' ? 'page' : undefined}>Projects</a>
           <a href={`${base}about/`} aria-current={current === 'about' ? 'page' : undefined}>About</a>
-          <a class="back" href={`${base}`} title="Back to the wardrobe doors">&#8592; wardrobe</a>
         </nav>
       </header>
       <main>
         <slot />
       </main>
       <footer class="site-foot">
-        <span>&copy; 2026 genckazo · set in serif on e-ink paper</span>
-        <a href={`${base}`}>&#8592; back through the wardrobe</a>
+        <span>&copy; 2026 genckazo · set on paper, like a book</span>
+        <a href={`${base}`}>home</a>
       </footer>
     </div>
+
+    <div class="display-ctl">
+      <button class="display-btn" id="displayBtn" aria-haspopup="true" aria-expanded="false">Display</button>
+      <div class="display-panel" id="displayPanel" hidden>
+        <div class="chips" role="radiogroup" aria-label="Theme">
+          <button type="button" class="chip" data-theme="paper" role="radio" aria-checked="true">Paper</button>
+          <button type="button" class="chip" data-theme="dusk" role="radio" aria-checked="false">Dusk</button>
+          <button type="button" class="chip" data-theme="ink" role="radio" aria-checked="false">Ink</button>
+        </div>
+        <div class="slider-row">
+          <label class="s-label" for="sLight">Light</label>
+          <input type="range" id="sLight" min="0" max="100" step="1" />
+          <span class="val" id="vLight"></span>
+        </div>
+        <div class="slider-row">
+          <label class="s-label" for="sContrast">Contrast</label>
+          <input type="range" id="sContrast" min="0" max="100" step="1" />
+          <span class="val" id="vContrast"></span>
+        </div>
+        <div class="slider-row">
+          <label class="s-label" for="sWarmth">Warmth</label>
+          <input type="range" id="sWarmth" min="0" max="100" step="1" />
+          <span class="val" id="vWarmth"></span>
+        </div>
+        <div class="slider-row">
+          <label class="s-label" for="sGrain">Grain</label>
+          <input type="range" id="sGrain" min="0" max="100" step="1" />
+          <span class="val" id="vGrain"></span>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const btn = document.getElementById('displayBtn') as HTMLButtonElement;
+        const panel = document.getElementById('displayPanel') as HTMLDivElement;
+        const state = (window as any).__display;
+        const apply = (window as any).__applyDisplay as (s: any) => void;
+        const save = () => {
+          try { localStorage.setItem('display', JSON.stringify(state)); } catch (e) {}
+        };
+        const sliders: [string, HTMLInputElement, HTMLSpanElement][] = [
+          ['light', document.getElementById('sLight') as HTMLInputElement, document.getElementById('vLight') as HTMLSpanElement],
+          ['contrast', document.getElementById('sContrast') as HTMLInputElement, document.getElementById('vContrast') as HTMLSpanElement],
+          ['warmth', document.getElementById('sWarmth') as HTMLInputElement, document.getElementById('vWarmth') as HTMLSpanElement],
+          ['grain', document.getElementById('sGrain') as HTMLInputElement, document.getElementById('vGrain') as HTMLSpanElement],
+        ];
+        for (const [key, input, val] of sliders) {
+          input.value = String(state[key]);
+          val.textContent = state[key] + '%';
+          input.addEventListener('input', () => {
+            state[key] = Number(input.value);
+            val.textContent = input.value + '%';
+            apply(state);
+            save();
+          });
+        }
+        const chips = Array.from(document.querySelectorAll<HTMLButtonElement>('.chip'));
+        const syncChips = () =>
+          chips.forEach((c) => c.setAttribute('aria-checked', String(c.dataset.theme === state.theme)));
+        syncChips();
+        chips.forEach((c) =>
+          c.addEventListener('click', () => {
+            state.theme = c.dataset.theme as string;
+            syncChips();
+            apply(state);
+            save();
+          }),
+        );
+        const close = () => {
+          panel.hidden = true;
+          btn.setAttribute('aria-expanded', 'false');
+        };
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const open = panel.hidden;
+          panel.hidden = !open;
+          btn.setAttribute('aria-expanded', String(open));
+        });
+        panel.addEventListener('click', (e) => e.stopPropagation());
+        document.addEventListener('click', close);
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') close();
+        });
+      })();
+    </script>
   </body>
 </html>

@@ -1,8 +1,7 @@
 ---
-import { DOOR_VARIANTS, DOOR_ORDER } from '../data/doors';
+import '../styles/global.css';
 
 const base = import.meta.env.BASE_URL;
-const variants = DOOR_ORDER.map((name) => ({ name, art: DOOR_VARIANTS[name] }));
 ---
 
 <!doctype html>
@@ -10,189 +9,134 @@ const variants = DOOR_ORDER.map((name) => ({ name, art: DOOR_VARIANTS[name] }));
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>genckazo — through the wardrobe</title>
-    <meta name="description" content="genckazo's personal blog. Click the wardrobe doors to step inside." />
+    <title>genckazo — blog</title>
+    <meta name="description" content="genckazo's personal blog. Essays and notes, set like a book page." />
     <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <script is:inline>
+      // apply saved display theme before first paint (same engine as inner pages)
+      (function () {
+        var THEMES = {
+          paper: { paper: '#f4f1ea', card: '#fbfaf6', ink: '#211e1a', soft: '#6e6a5f', faint: '#9b968a' },
+          dusk:  { paper: '#aeaa9f', card: '#bab6ab', ink: '#1e1c18', soft: '#4c4941', faint: '#6f6b60' },
+          ink:   { paper: '#161411', card: '#201d19', ink: '#e7e2d3', soft: '#a39d8e', faint: '#7d786c' }
+        };
+        var DEF = { theme: 'paper', light: 62, contrast: 0, warmth: 38, grain: 25 };
+        var s = DEF;
+        try {
+          var saved = JSON.parse(localStorage.getItem('display') || 'null');
+          if (saved) s = Object.assign({}, DEF, saved);
+        } catch (e) {}
+        var m = /[?&]texture=(subtle|standard|strong)/.exec(location.search);
+        if (m) s.grain = { subtle: 16, standard: 38, strong: 62 }[m[1]];
+        function mix(a, b, p) { return 'color-mix(in srgb, ' + a + ' ' + p + '%, ' + b + ')'; }
+        var t = THEMES[s.theme] || THEMES.paper;
+        var paper = mix(t.paper, '#f0dfba', s.warmth);
+        var lt = (s.light - 50) * 0.6;
+        paper = lt >= 0 ? mix(paper, s.theme === 'ink' ? '#3a352c' : '#ffffff', lt) : mix(paper, '#000000', -lt);
+        var root = document.documentElement.style;
+        root.setProperty('--paper', paper);
+        root.setProperty('--card', mix(paper, s.theme === 'ink' ? '#000000' : '#ffffff', 4));
+        root.setProperty('--ink', s.contrast > 0 ? mix(t.ink, s.theme === 'ink' ? '#ffffff' : '#000000', s.contrast * 0.85) : t.ink);
+        root.setProperty('--soft', t.soft);
+        root.setProperty('--faint', t.faint);
+        root.setProperty('--hairline', mix(t.ink, paper, 88));
+        root.setProperty('--noise', (s.grain / 100 * 0.55).toFixed(3));
+        document.documentElement.dataset.theme = s.theme;
+      })();
+    </script>
     <style>
-      :root {
-        --bg: #171512;
-        --ink: #e8e3d6;
-        --dim: #8d8676;
-        --paper: #f2eee1;
-        --paper-ink: #2a271f;
-      }
-      * { box-sizing: border-box; }
-      html, body { margin: 0; padding: 0; }
-      body {
-        min-height: 100svh;
-        background:
-          radial-gradient(120% 90% at 50% 8%, #211e19 0%, var(--bg) 55%, #100f0d 100%);
-        color: var(--ink);
-        font-family: ui-monospace, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
-        display: flex;
-      }
-      .scene {
-        margin: auto;
-        padding: 2.2rem 1rem 2.6rem;
-        text-align: center;
-        max-width: 100%;
-      }
-      .over {
-        margin: 0 0 1.3rem;
-        font-size: 0.72rem;
-        letter-spacing: 0.42em;
-        text-transform: uppercase;
-        color: var(--dim);
-      }
-      /* The wardrobe: fixed frame, two sliding leaves. Width is 80ch so the
-         whole drawing scales with font-size. */
-      .stage {
-        font-size: clamp(3px, 1.8vw, 15px);
-        line-height: 1.05;
-        width: fit-content;
+      .landing {
+        max-width: 46rem;
         margin: 0 auto;
-        overflow: hidden;
-        cursor: pointer;
-        perspective: 1100px;
-        border-radius: 2px;
-      }
-      .stage[hidden] { display: none; }
-      .stage:focus-visible { outline: 1px dashed var(--dim); outline-offset: 8px; }
-      .stage pre {
-        margin: 0;
-        font-family: inherit;
-        font-size: 1em;
-        line-height: inherit;
-        color: var(--ink);
-        user-select: none;
-        white-space: pre;
-      }
-      .leaf {
-        position: absolute;
-        top: 0;
-        display: block;
-        overflow: hidden;
-        transition: transform 1.05s cubic-bezier(0.65, 0.05, 0.25, 1), opacity 1.05s ease;
-        will-change: transform;
-      }
-      .leaf-l { left: 2ch; width: 35ch; }
-      .leaf-r { left: 42ch; width: 35ch; }
-      .leaf-r pre { margin-left: -42ch; }
-      .stage.open .leaf-l { transform: translateX(-41ch) rotateY(-16deg); opacity: 0.12; }
-      .stage.open .leaf-r { transform: translateX(41ch) rotateY(16deg); opacity: 0.12; }
-      .behind {
-        position: absolute;
-        inset: 0;
-        z-index: -1;
+        min-height: 100svh;
         display: flex;
         flex-direction: column;
-        align-items: center;
         justify-content: center;
-        gap: 0.9rem;
-        background:
-          radial-gradient(90% 80% at 50% 45%, #f7f3e7 0%, var(--paper) 60%, #e6dfcb 100%);
-        color: var(--paper-ink);
-        font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
-        opacity: 0;
-        transition: opacity 0.9s ease 0.35s;
-        padding: 1rem;
+        padding: 3rem 1.4rem;
       }
-      .stage.open .behind { opacity: 1; }
-      .behind-line { margin: 0; font-size: clamp(0.7rem, 1.6vw, 1.05rem); font-style: italic; }
-      .behind-link {
-        color: var(--paper-ink);
-        font-size: clamp(0.75rem, 1.8vw, 1.1rem);
-        text-underline-offset: 4px;
+      .overline {
+        font-family: var(--sans);
+        font-size: 0.72rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin: 0 0 1.4rem;
       }
-      .caption {
-        margin: 1.5rem 0 0;
-        font-size: 0.8rem;
-        color: var(--dim);
+      h1.display {
+        font-size: clamp(2.6rem, 7.5vw, 4.4rem);
+        line-height: 1.04;
+        letter-spacing: -0.028em;
+        font-weight: 650;
+        margin: 0 0 1.2rem;
       }
-      .caption a { color: var(--ink); text-underline-offset: 3px; }
-      .hint { animation: breathe 2.8s ease-in-out infinite; }
-      @keyframes breathe { 50% { opacity: 0.4; } }
-      .variant-row {
-        margin: 0.9rem 0 0;
-        font-size: 0.68rem;
-        color: #5c564b;
-        letter-spacing: 0.06em;
+      .landing .lede {
+        font-family: var(--sans);
+        font-size: 1.02rem;
+        color: var(--soft);
+        line-height: 1.6;
+        max-width: 34rem;
+        margin: 0 0 1.8rem;
       }
-      .variant-row a { color: var(--dim); text-underline-offset: 3px; }
-      .variant-row a[aria-current="true"] { color: var(--ink); }
-      @media (prefers-reduced-motion: reduce) {
-        .leaf, .behind { transition-duration: 0.01s; }
-        .hint { animation: none; }
+      .enter a {
+        display: inline-block;
+        font-family: var(--sans);
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 0.6rem 1.35rem;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+      .enter a:hover { background: var(--ink); color: var(--paper); }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 3.4rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--hairline);
+        border-radius: 14px;
+        padding: 1.05rem 1.15rem;
+        text-align: left;
+      }
+      .card svg { color: var(--ink); display: block; }
+      .card h3 { font-family: var(--sans); font-size: 0.9rem; font-weight: 650; margin: 0.6rem 0 0.25rem; }
+      .card p { font-family: var(--sans); font-size: 0.84rem; color: var(--soft); line-height: 1.5; margin: 0; }
+      @media (max-width: 700px) {
+        .cards { grid-template-columns: 1fr; margin-top: 2.6rem; }
       }
     </style>
   </head>
   <body>
-    <main class="scene">
-      <p class="over">genckazo&rsquo;s blog</p>
+    <main class="landing">
+      <p class="overline">genckazo &middot; blog</p>
+      <h1 class="display">Everything you read is here.</h1>
+      <p class="lede">
+        Essays and notes, saved as plain Markdown in a public repo and set like a
+        book page — not a feed. Free forever on GitHub Pages.
+      </p>
+      <p class="enter"><a href={`${base}posts/`}>Enter the blog &rarr;</a></p>
 
-      {variants.map(({ name, art }, i) => (
-        <div
-          class="stage"
-          id={`stage-${name}`}
-          data-variant={name}
-          role="button"
-          tabindex="0"
-          aria-label="Open the wardrobe doors and enter the blog"
-          hidden={i !== 0}
-        >
-          <div class="behind" aria-hidden="true">
-            <p class="behind-line">the wardrobe opens onto a quiet reading room</p>
-            <a class="behind-link" href={`${base}posts/`} tabindex="-1">enter the blog &rarr;</a>
-          </div>
-          <pre class="layer frame">{art.frame}</pre>
-          <span class="leaf leaf-l"><pre>{art.left}</pre></span>
-          <span class="leaf leaf-r"><pre>{art.right}</pre></span>
+      <div class="cards">
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <h3>Add anything</h3>
+          <p>Posts are Markdown files in the GitHub repo. Write one, commit, published.</p>
         </div>
-      ))}
-
-      <p class="caption">
-        <span class="hint">click the doors to step through</span>
-        &nbsp;&middot;&nbsp;
-        <a href={`${base}posts/`}>or go straight in &rarr;</a>
-      </p>
-      <p class="variant-row">
-        door style:
-        {variants.map(({ name }, i) => (
-          <>{i > 0 && ' · '}<a href={`?door=${name}`} data-variant-link={name} aria-current={i === 0 ? 'true' : undefined}>{name}</a></>
-        ))}
-      </p>
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+          <h3>Find it fast</h3>
+          <p>A short reading list, newest first. No algorithm, no infinite scroll.</p>
+        </div>
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          <h3>Keep track</h3>
+          <p>Each post is a row: title, one-line note, date. Like a bookshelf, minus the dust.</p>
+        </div>
+      </div>
     </main>
-
-    <script>
-      const base = import.meta.env.BASE_URL;
-      const params = new URLSearchParams(window.location.search);
-      const pick = params.get('door') ?? 'panel';
-
-      const stages = Array.from(document.querySelectorAll<HTMLElement>('.stage'));
-      for (const s of stages) s.hidden = s.dataset.variant !== pick;
-      document.querySelectorAll<HTMLAnchorElement>('[data-variant-link]').forEach((a) => {
-        a.setAttribute('aria-current', a.dataset.variantLink === pick ? 'true' : 'false');
-      });
-
-      let entered = false;
-      function enter(stage: HTMLElement) {
-        if (entered || stage.classList.contains('open')) return;
-        entered = true;
-        stage.classList.add('open');
-        window.setTimeout(() => {
-          window.location.href = `${base}posts/`;
-        }, 1200);
-      }
-
-      for (const s of stages) {
-        s.addEventListener('click', () => enter(s));
-        s.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            enter(s);
-          }
-        });
-      }
-    </script>
   </body>
 </html>

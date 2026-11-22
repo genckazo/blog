@@ -1,0 +1,209 @@
+---
+import '../styles/global.css';
+
+const base = import.meta.env.BASE_URL;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>genckazo — blog</title>
+    <meta name="description" content="genckazo's personal blog. Essays and notes, set like a book page." />
+    <link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`} />
+    <script is:inline>
+      // apply saved display theme before first paint (same engine as inner pages)
+      (function () {
+        var THEMES = {
+          paper: { paper: '#f4f1ea', card: '#fbfaf6', ink: '#211e1a', soft: '#6e6a5f', faint: '#9b968a' },
+          dusk:  { paper: '#aeaa9f', card: '#bab6ab', ink: '#1e1c18', soft: '#4c4941', faint: '#6f6b60' },
+          ink:   { paper: '#161411', card: '#201d19', ink: '#e7e2d3', soft: '#a39d8e', faint: '#7d786c' }
+        };
+        var DEF = { theme: 'paper', light: 62, contrast: 0, warmth: 38, grain: 25 };
+        var s = DEF;
+        try {
+          var saved = JSON.parse(localStorage.getItem('display') || 'null');
+          if (saved) s = Object.assign({}, DEF, saved);
+        } catch (e) {}
+        var m = /[?&]texture=(subtle|standard|strong)/.exec(location.search);
+        if (m) s.grain = { subtle: 16, standard: 38, strong: 62 }[m[1]];
+        function mix(a, b, p) { return 'color-mix(in srgb, ' + a + ' ' + p + '%, ' + b + ')'; }
+        var t = THEMES[s.theme] || THEMES.paper;
+        var paper = mix(t.paper, '#f0dfba', s.warmth);
+        var lt = (s.light - 50) * 0.6;
+        paper = lt >= 0 ? mix(paper, s.theme === 'ink' ? '#3a352c' : '#ffffff', lt) : mix(paper, '#000000', -lt);
+        var root = document.documentElement.style;
+        root.setProperty('--paper', paper);
+        root.setProperty('--card', mix(paper, s.theme === 'ink' ? '#000000' : '#ffffff', 4));
+        root.setProperty('--ink', s.contrast > 0 ? mix(t.ink, s.theme === 'ink' ? '#ffffff' : '#000000', s.contrast * 0.85) : t.ink);
+        root.setProperty('--soft', t.soft);
+        root.setProperty('--faint', t.faint);
+        root.setProperty('--hairline', mix(t.ink, paper, 88));
+        root.setProperty('--noise', (s.grain / 100 * 0.55).toFixed(3));
+        document.documentElement.dataset.theme = s.theme;
+      })();
+    </script>
+    <style>
+      .landing {
+        max-width: 60rem;
+        margin: 0 auto;
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 3rem 1.4rem;
+      }
+      .hero {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 2rem;
+        align-items: center;
+      }
+      .overline {
+        font-family: var(--sans);
+        font-size: 0.72rem;
+        letter-spacing: 0.35em;
+        text-transform: uppercase;
+        color: var(--faint);
+        margin: 0 0 1.4rem;
+      }
+      h1.display {
+        font-size: clamp(2.4rem, 5.4vw, 3.9rem);
+        line-height: 1.05;
+        letter-spacing: -0.028em;
+        font-weight: 650;
+        margin: 0 0 1.2rem;
+      }
+      .landing .lede {
+        font-family: var(--sans);
+        font-size: 1.02rem;
+        color: var(--soft);
+        line-height: 1.6;
+        max-width: 34rem;
+        margin: 0 0 1.8rem;
+      }
+      .enter a {
+        display: inline-block;
+        font-family: var(--sans);
+        font-size: 0.95rem;
+        color: var(--ink);
+        text-decoration: none;
+        border: 1px solid var(--ink);
+        border-radius: 999px;
+        padding: 0.6rem 1.35rem;
+        transition: background-color 0.15s ease, color 0.15s ease;
+      }
+      .enter a:hover { background: var(--ink); color: var(--paper); }
+      .top-wrap {
+        position: relative;
+        height: 380px;
+      }
+      #topCanvas canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      #topCanvas {
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
+        border-radius: 16px;
+        display: block;
+      }
+      #topCanvas:focus-visible {
+        outline: 1px dashed var(--faint);
+        outline-offset: 6px;
+      }
+      .top-hint {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -1.7rem;
+        margin: 0;
+        text-align: center;
+        font-family: var(--sans);
+        font-size: 0.7rem;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--faint);
+        pointer-events: none;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1rem;
+        margin-top: 3.6rem;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--hairline);
+        border-radius: 14px;
+        padding: 1.05rem 1.15rem;
+        text-align: left;
+      }
+      .card svg { color: var(--ink); display: block; }
+      .card h3 { font-family: var(--sans); font-size: 0.9rem; font-weight: 650; margin: 0.6rem 0 0.25rem; }
+      .card p { font-family: var(--sans); font-size: 0.84rem; color: var(--soft); line-height: 1.5; margin: 0; }
+      @media (max-width: 860px) {
+        .hero { grid-template-columns: 1fr; gap: 0.5rem; }
+        .top-wrap { height: 250px; order: 2; margin-top: 1.6rem; }
+        .top-hint { bottom: -1.5rem; }
+      }
+      @media (max-width: 700px) {
+        .cards { grid-template-columns: 1fr; margin-top: 3rem; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="landing">
+      <div class="hero">
+        <div class="hero-text">
+          <p class="overline">genckazo &middot; blog</p>
+          <h1 class="display">Everything you read is here.</h1>
+          <p class="lede">
+            Essays and notes, saved as plain Markdown in a public repo and set like a
+            book page — not a feed. Free forever on GitHub Pages.
+          </p>
+          <p class="enter"><a href={`${base}posts/`}>Enter the blog &rarr;</a></p>
+        </div>
+        <div class="top-wrap">
+          <div id="topCanvas" role="button" tabindex="0" aria-label="A spinning top. Activate to launch it."></div>
+          <p class="top-hint">tap the top to launch</p>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          <h3>Add anything</h3>
+          <p>Posts are Markdown files in the GitHub repo. Write one, commit, published.</p>
+        </div>
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.8-3.8"/></svg>
+          <h3>Find it fast</h3>
+          <p>A short reading list, newest first. No algorithm, no infinite scroll.</p>
+        </div>
+        <div class="card">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+          <h3>Keep track</h3>
+          <p>Each post is a row: title, one-line note, date. Like a bookshelf, minus the dust.</p>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // lazy-loaded chunk: only fetch + run the 3D top when the page is idle
+      const el = document.getElementById('topCanvas');
+      const boot = () => {
+        if (!el) return;
+        import('../scripts/top').then((m) => m.mountTop(el)).catch(() => {});
+      };
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(boot, { timeout: 2500 });
+      } else {
+        window.setTimeout(boot, 400);
+      }
+    </script>
+  </body>
+</html>
